@@ -41,12 +41,11 @@ module.exports = {
     },
   },
   etherscan: {
-    apiKey: process.env.BSCTESTNET_SCAN_KEY,
-    // apiKey: {
-      // localhost: process.env.ETHTESTNET_SCAN_KEY,
-      // bsctestnet: process.env.BSCTESTNET_SCAN_KEY,
-      // bscmainnet: process.env.BSCMAINNET_SCAN_KEY,
-    // } 
+    apiKey: {
+      localhost: process.env.ETHTESTNET_SCAN_KEY,
+      bsctestnet: process.env.BSCTESTNET_SCAN_KEY,
+      bscmainnet: process.env.BSCMAINNET_SCAN_KEY,
+    } 
   },
   settings: {
     optimizer: {
