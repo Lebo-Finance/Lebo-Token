@@ -5,6 +5,6 @@ Token: [0xa253F4CF70544268945F4f52bfAdA42b2C2c7Df4](https://bscscan.com/token/0x
 
 Treasery: [0x66B45362e150FC432C49b7a61628Ed40044E1B1c](https://bscscan.com/token/0x66B45362e150FC432C49b7a61628Ed40044E1B1c)
 
-| Total Supply | Liquidity & Incentives    | Foundation reserve    |  Team & Advisors  | Marketing |
-| :---:   | :---: | :---: | :---: | :---: |
-| 250.000.000 | 23%   | 21.2%   |  17.4%   |  10% |
+| Total Supply | Liquidity & Incentives    | Foundation reserve    |  Team & Advisors  | Marketing | Token Sale |
+| :---:   | :---: | :---: | :---: | :---: | :---: |
+| 250.000.000 | 23%   | 21.2%   |  17.4%   |  10% | 28.4 |
