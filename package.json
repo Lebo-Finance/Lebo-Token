@@ -1,0 +1,32 @@
+{
+  "name": "lebo",
+  "license": "ISC",
+  "scripts": {
+    "chain": "npx hardhat node",
+    "clean": "npx hardhat clean",
+    "compile": "npx hardhat compile",
+    "deploy:bsc": "npx hardhat run --network bscmainnet scripts/deploy.js",
+    "deploy:local": "npx hardhat run --network localhost scripts/deploy.js",
+    "deploy:bsc:test": "npx hardhat run --network bsctestnet scripts/deploy.js",
+    "upgrade:bsc:test": "npx hardhat run --network bsctestnet scripts/upgrade.js",
+    "verify": "npx hardhat verify --constructor-args arguments.js 0xa253F4CF70544268945F4f52bfAdA42b2C2c7Df4 --network bscmainnet",
+    "verify:test": "npx hardhat verify --constructor-args arguments.js 0x084991bFb410421849A1DBB1bbB635DdE87B2627 --network bsctestnet",
+    "accounts": "npx hardhat accounts",
+    "test": "npx hardhat test --network hardhat"
+  },
+  "devDependencies": {
+  },
+  "dependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^1.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.1.1",
+    "@nomiclabs/hardhat-etherscan": "^3.1.0",
+    "@openzeppelin/contracts": "^4.7.3",
+    "@openzeppelin/hardhat-upgrades": "^1.20.0",
+    "chai": "^4.3.6",
+    "ethers": "^5.6.2",
+    "hardhat": "^2.10.2",
+    "ramda": "^0.27.1",
+    "@openzeppelin/contracts-upgradeable": "^4.7.3",
+    "dotenv": "^16.0.1"
+  }
+}
