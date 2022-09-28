@@ -11,7 +11,7 @@ const main = async () => {
   console.log("\n\n 📡 Deploying...\n");
 
   const LeboToken = await deploy("LeboToken")
-  const Treasury = await deployProxy("Treasury", [LeboToken.address])
+  const Treasury = await deployProxy("Treasury", [])
 
   //Lock Token
   // const currentTimestampInSeconds = Math.round(Date.now() / 1000);
