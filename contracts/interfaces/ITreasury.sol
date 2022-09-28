@@ -2,11 +2,37 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 interface ITreasury {
-    function getLiquidityTotalAmount() external view returns (uint256);
+    function getTeamReleased() external view returns (uint256);
 
-    function getFoundationTotalAmount() external view returns (uint256);
+    function getLiquidityReleased() external view returns (uint256);
 
-    function getMarketingTotalAmount() external view returns (uint256);
+    function getFoundationReleased() external view returns (uint256);
 
-    function getTokenSaleTotalAmount() external view returns (uint256);
+    function getMarketingReleased() external view returns (uint256);
+
+    function getTokenSaleReleased() external view returns (uint256);
+
+    function liquidityWithdraw(
+        address token,
+        address to,
+        uint256 amount
+    ) external;
+
+    function foundationWithdraw(
+        address token,
+        address to,
+        uint256 amount
+    ) external;
+
+    function marketingWithdraw(
+        address token,
+        address to,
+        uint256 amount
+    ) external;
+
+    function tokenSaleWithdraw(
+        address token,
+        address to,
+        uint256 amount
+    ) external;
 }

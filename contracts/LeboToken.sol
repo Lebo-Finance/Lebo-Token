@@ -15,12 +15,15 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 /// [Marketing]              : 10%
 /// -----------------------------------------------------------------------------------------------------------
 /// [Token Sale]             : 28.4%
-/// ●------------[Seed]      : 10.6% ➔ Unlock 2.65% every 6 months.
-/// ●------------[IDO]       : 12.8% ➔ One wallet address can only buy upto 1000 tokens.
-/// ●------------[Public]    : 5%
 /// -----------------------------------------------------------------------------------------------------------
 contract LeboToken is ERC20, Ownable, ERC20Permit, ERC20Votes {
     uint256 internal cap_ = 250000000e18;
+    address internal treasury_;
+
+    event TreasuryContractChanged(
+        address indexed previusAAddress,
+        address indexed newAddress
+    );
 
     constructor() ERC20("Lebo", "LEBO") ERC20Permit("Lebo") {}
 
@@ -31,9 +34,21 @@ contract LeboToken is ERC20, Ownable, ERC20Permit, ERC20Votes {
         return cap_;
     }
 
+    function treasury() public view returns (address) {
+        return treasury_;
+    }
+
+    function setTreasury(address _treasury) public onlyOwner {
+        emit TreasuryContractChanged(treasury_, _treasury);
+        treasury_ = _treasury;
+    }
+
+    /**
+     * Max supply 250.000.000
+     */
     function mint(address to, uint256 amount) public onlyOwner {
         require(_msgSender() != address(0), "BEP20: mint to the zero address");
-        require(totalSupply() + amount <= cap(), "Cannot mint more than cap");
+        require((totalSupply() + amount) <= cap_, "Cannot mint more than cap");
         _mint(to, amount);
     }
 
@@ -44,26 +59,6 @@ contract LeboToken is ERC20, Ownable, ERC20Permit, ERC20Votes {
      */
     function burn(uint256 amount) public virtual onlyOwner {
         _burn(_msgSender(), amount);
-    }
-
-    /**
-     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
-     * allowance.
-     *
-     * See {ERC20-_burn} and {ERC20-allowance}.
-     *
-     * Requirements:
-     *
-     * - the caller must have allowance for ``accounts``'s tokens of at least
-     * `amount`.
-     */
-    function burnFrom(address account, uint256 amount)
-        public
-        virtual
-        onlyOwner
-    {
-        _spendAllowance(account, _msgSender(), amount);
-        _burn(account, amount);
     }
 
     // The following functions are overrides required by Solidity.
