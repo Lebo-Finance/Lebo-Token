@@ -9,7 +9,7 @@
     "deploy:local": "npx hardhat run --network localhost scripts/deploy.js",
     "deploy:bsc:test": "npx hardhat run --network bsctestnet scripts/deploy.js",
     "upgrade:bsc:test": "npx hardhat run --network bsctestnet scripts/upgrade.js",
-    "verify": "npx hardhat verify --constructor-args arguments.js 0xa253F4CF70544268945F4f52bfAdA42b2C2c7Df4 --network bscmainnet",
+    "verify": "npx hardhat verify --constructor-args arguments.js 0x108CaD2034473e42aD48BbAfaf14C07dB6954102 --network bscmainnet",
     "verify:test": "npx hardhat verify --constructor-args arguments.js 0x084991bFb410421849A1DBB1bbB635DdE87B2627 --network bsctestnet",
     "accounts": "npx hardhat accounts",
     "test": "npx hardhat test --network hardhat"
