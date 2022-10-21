@@ -26,6 +26,8 @@ contract Treasury is
     ITreasury
 {
     uint256 internal initializeTime_;
+    address internal tokenBase_;
+    bool internal canStart_;
     // For storing all vesting stages with structure defined above.
     mapping(address => vesting[]) internal phases;
 
@@ -54,11 +56,27 @@ contract Treasury is
         bool vested;
     }
 
-    event TeamWithdraw(address indexed wallet, uint256 indexed amount);
-    event LiquidityWithdraw(address indexed wallet, uint256 indexed amount);
-    event FoundationWithdraw(address indexed wallet, uint256 indexed amount);
-    event MarketingWithdraw(address indexed wallet, uint256 indexed amount);
-    event TokenSaleWithdraw(address indexed wallet, uint256 indexed amount);
+    // Events token released
+    event TeamTokenReleased(address indexed wallet, uint256 indexed amount);
+    event LiquidityTokenReleased(
+        address indexed wallet,
+        uint256 indexed amount
+    );
+    event FoundationTokenReleased(
+        address indexed wallet,
+        uint256 indexed amount
+    );
+    event MarketingTokenReleased(
+        address indexed wallet,
+        uint256 indexed amount
+    );
+    event TokenSaleReleased(address indexed wallet, uint256 indexed amount);
+
+    // Address changed
+    event TokenBaseUpdated(
+        address indexed newAddress,
+        address indexed previous
+    );
 
     event LiquidityAddressUpdated(
         address indexed newAddress,
@@ -76,9 +94,6 @@ contract Treasury is
         address indexed newAddress,
         bool indexed actived
     );
-
-    event ClaimAirdrop(address indexed account, uint256 indexed amount);
-    event AirdropAdded(address indexed account, uint256 amount);
 
     /// Withdraw amount exceeds sender's balance of the locked token
     error ExceedsBalance();
@@ -99,6 +114,7 @@ contract Treasury is
     function initialize() public initializer {
         __Pausable_init();
         __Ownable_init();
+        canStart_ = true;
     }
 
     function pause() public onlyOwner {
@@ -109,17 +125,26 @@ contract Treasury is
         _unpause();
     }
 
-    function totalSupply() external view returns (uint256) {
+    function setTokenBase(address _token) public onlyOwner {
+        emit TokenBaseUpdated(_token, tokenBase_);
+        tokenBase_ = _token;
+    }
+
+    function balanceOf(address token) external view override returns (uint256) {
+        return IERC20Upgradeable(token).balanceOf(address(this));
+    }
+
+    function totalSupply() external view override returns (uint256) {
+        return IERC20Upgradeable(tokenBase_).balanceOf(address(this));
+    }
+
+    function circulatingSupply() external view returns (uint256) {
         return
             teamReleased_ +
             liquidityReleased_ +
             foundationReleased_ +
             marketingReleased_ +
             tokenSaleReleased_;
-    }
-
-    function balanceOf(address token) external view returns (uint256) {
-        return IERC20Upgradeable(token).balanceOf(address(this));
     }
 
     /**
@@ -162,10 +187,29 @@ contract Treasury is
     }
 
     /**
-     * Withdraw
+     * Release token
      */
 
-    function liquidityWithdraw(
+    function releaseTokenTeam(
+        address token,
+        address to,
+        uint8 phase
+    ) external override onlyOwner {
+        require(to != address(0), "ERC20: transfer to the zero address");
+
+        if (block.timestamp < phases[_msgSender()][phase].date) {
+            revert LockPeriodOngoing();
+        }
+
+        uint256 amount = _phaseRewardOf(_msgSender(), phase);
+        if (amount == 0) {
+            revert ExceedsBalance();
+        }
+
+        _release(token, _msgSender(), amount, phase);
+    }
+
+    function releaseTokenLiquidity(
         address token,
         address to,
         uint256 amount
@@ -181,12 +225,12 @@ contract Treasury is
         );
 
         liquidityReleased_ += amount;
-        emit LiquidityWithdraw(to, amount);
+        emit LiquidityTokenReleased(to, amount);
 
         SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(token), to, amount);
     }
 
-    function foundationWithdraw(
+    function releaseTokenFoundation(
         address token,
         address to,
         uint256 amount
@@ -202,11 +246,11 @@ contract Treasury is
         );
 
         foundationReleased_ += amount;
-        emit FoundationWithdraw(to, amount);
+        emit FoundationTokenReleased(to, amount);
         SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(token), to, amount);
     }
 
-    function marketingWithdraw(
+    function releaseTokenMarketing(
         address token,
         address to,
         uint256 amount
@@ -222,11 +266,11 @@ contract Treasury is
         );
 
         marketingReleased_ += amount;
-        emit MarketingWithdraw(to, amount);
+        emit MarketingTokenReleased(to, amount);
         SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(token), to, amount);
     }
 
-    function tokenSaleWithdraw(
+    function releaseTokenTokenSale(
         address token,
         address to,
         uint256 amount
@@ -242,7 +286,7 @@ contract Treasury is
         );
 
         tokenSaleReleased_ += amount;
-        emit TokenSaleWithdraw(to, amount);
+        emit TokenSaleReleased(to, amount);
         SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(token), to, amount);
     }
 
@@ -271,68 +315,30 @@ contract Treasury is
     }
 
     /**
-     * Airdrop
+     *  Start locked token 3 year
      */
-
-    function airdropOf(address account) public view returns (uint256) {
-        return airdrop_[account];
-    }
-
-    function addAirdrops(address account, uint256 amount) public onlyOwner {
-        require(account != address(0), "address cannot be 0");
-        require(amount > 0, "Quantity must be greater than 0");
-        airdrop_[account] += amount;
-        emit AirdropAdded(account, amount);
-    }
-
-    function claimAirdrop(address token) public {
-        require(airdrop_[_msgSender()] > 0, "Address not receive airdrop");
-        uint256 amount = airdrop_[_msgSender()];
-        airdrop_[_msgSender()] = 0;
-        emit ClaimAirdrop(_msgSender(), amount);
-        SafeERC20Upgradeable.safeTransfer(
-            IERC20Upgradeable(token),
-            _msgSender(),
-            amount
-        );
-    }
-
-    /**
-     *  Team relased
-     */
-
     function start() public onlyOwner {
+        require(canStart_, "Quantity must be greater than 0");
+
+        canStart_ = false;
+
         initializeTime_ = block.timestamp;
-        uint256 _teamCliff = 30 days;
+        uint256 _teamCliff = 90 days;
+        // 1 year
         _addPhase(owner(), initializeTime_ + (_teamCliff * 1), false);
         _addPhase(owner(), initializeTime_ + (_teamCliff * 2), false);
         _addPhase(owner(), initializeTime_ + (_teamCliff * 3), false);
         _addPhase(owner(), initializeTime_ + (_teamCliff * 4), false);
+        // 2 year
         _addPhase(owner(), initializeTime_ + (_teamCliff * 5), false);
         _addPhase(owner(), initializeTime_ + (_teamCliff * 6), false);
         _addPhase(owner(), initializeTime_ + (_teamCliff * 7), false);
         _addPhase(owner(), initializeTime_ + (_teamCliff * 8), false);
+        // 3 year
         _addPhase(owner(), initializeTime_ + (_teamCliff * 9), false);
         _addPhase(owner(), initializeTime_ + (_teamCliff * 10), false);
         _addPhase(owner(), initializeTime_ + (_teamCliff * 11), false);
         _addPhase(owner(), initializeTime_ + (_teamCliff * 12), false);
-    }
-
-    function release(
-        address token,
-        address recever,
-        uint8 phase
-    ) public onlyOwner {
-        if (block.timestamp < phases[recever][phase].date) {
-            revert LockPeriodOngoing();
-        }
-
-        uint256 amount = _phaseRewardOf(recever, phase);
-        if (amount == 0) {
-            revert ExceedsBalance();
-        }
-
-        _release(token, recever, amount, phase);
     }
 
     function phasesLockedOf(address wallet)
@@ -359,7 +365,7 @@ contract Treasury is
     ) internal {
         phases[recever][phase].vested = true;
         teamReleased_ += amount;
-        emit TeamWithdraw(recever, amount);
+        emit TeamTokenReleased(recever, amount);
         SafeERC20Upgradeable.safeTransfer(
             IERC20Upgradeable(token),
             _msgSender(),

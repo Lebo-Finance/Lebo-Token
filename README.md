@@ -1,9 +1,9 @@
 # Lebo-Token
 The Lebo is a decentralized finance protocol that allows people to lend and borrow crypto. Lenders earn interest by depositing digital assets into specially created liquidity pools. Borrowers can then use their crypto as collateral to take out a flash loan using this liquidity.
 
-Token: [0xd6bba5c3b5235301A2809fB08B91b87335729dA7](https://bscscan.com/token/0xd6bba5c3b5235301A2809fB08B91b87335729dA7)
+Token: [0x077c1f6F5c7231313FF6A87BEC2eeF325a23a7e5](https://bscscan.com/token/0x077c1f6F5c7231313FF6A87BEC2eeF325a23a7e5)
 
-Treasery: [0xfa4941D8Cba04d01A3CEdb4cfB09751A553988cC](https://bscscan.com/token/0xfa4941D8Cba04d01A3CEdb4cfB09751A553988cC)
+Treasery: [0x859Ec2Fc996E0516ED203396D9D0cC9DA9431476](https://bscscan.com/token/0x859Ec2Fc996E0516ED203396D9D0cC9DA9431476)
 
 Telegram: [Join](https://t.me/+wbhGjVGoayNlZjE1)
 

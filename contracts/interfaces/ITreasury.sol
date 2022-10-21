@@ -12,25 +12,31 @@ interface ITreasury {
 
     function getTokenSaleReleased() external view returns (uint256);
 
-    function liquidityWithdraw(
+    function releaseTokenTeam(
+        address token,
+        address to,
+        uint8 phase
+    ) external;
+
+    function releaseTokenLiquidity(
         address token,
         address to,
         uint256 amount
     ) external;
 
-    function foundationWithdraw(
+    function releaseTokenFoundation(
         address token,
         address to,
         uint256 amount
     ) external;
 
-    function marketingWithdraw(
+    function releaseTokenMarketing(
         address token,
         address to,
         uint256 amount
     ) external;
 
-    function tokenSaleWithdraw(
+    function releaseTokenTokenSale(
         address token,
         address to,
         uint256 amount
